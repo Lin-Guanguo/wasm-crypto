@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+    "wasm-crypto",
+    "wasm-crypto-test"
+]
