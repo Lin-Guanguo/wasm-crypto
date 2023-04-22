@@ -9,11 +9,22 @@ use wasm_bindgen::prelude::*;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-extern {
+extern "C" {
     fn alert(s: &str);
 }
 
+use num_bigint::BigUint;
+use num_modular::ModularUnaryOps;
+
 #[wasm_bindgen]
 pub fn greet() {
-    alert("Hello, wasm-crypto!");
+    let a = BigUint::from(11u32);
+    let m = BigUint::from(17u32);
+    let inv = a.invm(&m);
+    alert(&format!("Hello, wasm-crypto! {:?}", inv));
+}
+
+#[wasm_bindgen]
+pub fn greet2() {
+    alert("Hello2, wasm-crypto! version4");
 }
