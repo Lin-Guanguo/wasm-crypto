@@ -28,3 +28,20 @@ pub fn getBlindToken(orderNo: String, phrase: String, n: String, e: String) -> S
     utils::set_panic_hook();
     blind::get_blind_token(orderNo, phrase, n, e)
 }
+
+/**
+ * is signBlindToken is right. return "OK"
+ */
+#[wasm_bindgen]
+#[allow(non_snake_case)]
+pub fn checkSignBlindToken(
+    signBlindToken: String,
+    orderNo: String,
+    phrase: String,
+    goodsId: u64,
+    n: String,
+    e: String,
+) -> String {
+    utils::set_panic_hook();
+    blind::check_sign_blind_token(signBlindToken, orderNo, phrase, goodsId, n, e)
+}
