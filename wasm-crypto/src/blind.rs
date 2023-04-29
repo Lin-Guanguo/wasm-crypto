@@ -1,4 +1,4 @@
-use std::cell::Cell;
+use std::convert::TryInto;
 
 use crate::utils::log;
 use base64::engine::general_purpose::URL_SAFE_NO_PAD as Base64;
@@ -6,6 +6,7 @@ use base64::prelude::*;
 use num_bigint::BigUint;
 use num_modular::*;
 use num_prime::nt_funcs::next_prime;
+use sha2::{Digest, Sha256};
 
 const KEY_BYTES: usize = 256;
 const HASH_BYTES: usize = 24;
@@ -17,6 +18,14 @@ const R_BYTES: usize = 512 / 8;
 
 fn hash(password: &[u8]) -> [u8; HASH_BYTES] {
     bcrypt::bcrypt(COST, SALT, password)
+}
+
+fn sha256(i: &[u8]) -> [u8; 256 / 8] {
+    let mut hasher = Sha256::new();
+    hasher.update(i);
+    (&hasher.finalize()[..])
+        .try_into()
+        .expect("sha256 bits error")
 }
 
 const fn div_ceil(l: usize, r: usize) -> usize {
@@ -46,7 +55,9 @@ fn bn_encode(n: &BigUint) -> String {
 }
 
 fn get_m(password: &str) -> BigUint {
-    BigUint::from_bytes_be(&hash(password.as_bytes()))
+    let mut m = hash(password.as_bytes()).to_vec();
+    m.extend_from_slice(&sha256(&m));
+    BigUint::from_bytes_be(&m)
 }
 
 fn get_r(password: &str) -> BigUint {
@@ -86,10 +97,15 @@ pub fn check_sign_blind_token(
     let m = get_m(&password);
     let r = get_r(&password);
     let sign_blind_token = bn_decode(&sign_blind_token);
-    let goods_id = BigUint::from(goods_id);
+    let goods_id = BigUint::from_bytes_be(&sha256(goods_id.to_string().as_bytes()));
     let r_inv = r.clone().invm(&n).unwrap();
     let sign_token = sign_blind_token.mulm(r_inv, &n);
     let design_token = sign_token.powm(e.clone(), &n);
+
+    log(&format!(
+        "wasm check_sign_blind_token: design_token={}",
+        design_token
+    ));
 
     if design_token == m.mulm(goods_id, &n) {
         "OK".to_string()
