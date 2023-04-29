@@ -30,11 +30,11 @@ pub fn getBlindToken(orderNo: String, phrase: String, n: String, e: String) -> S
 }
 
 /**
- * is signBlindToken is right. return "OK"
+ * if signBlindToken is right, return deblind sign token, else "ERROR: xxx"
  */
 #[wasm_bindgen]
 #[allow(non_snake_case)]
-pub fn checkSignBlindToken(
+pub fn deblindSignToken(
     signBlindToken: String,
     orderNo: String,
     phrase: String,
@@ -43,5 +43,12 @@ pub fn checkSignBlindToken(
     e: String,
 ) -> String {
     utils::set_panic_hook();
-    blind::check_sign_blind_token(signBlindToken, orderNo, phrase, goodsId, n, e)
+    blind::deblind_sign_token(signBlindToken, orderNo, phrase, goodsId, n, e)
+}
+
+#[wasm_bindgen]
+#[allow(non_snake_case)]
+pub fn getM(orderNo: String, phrase: String) -> String {
+    utils::set_panic_hook();
+    blind::get_m_encode(orderNo, phrase)
 }

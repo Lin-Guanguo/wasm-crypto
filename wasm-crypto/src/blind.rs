@@ -66,6 +66,10 @@ fn get_r(password: &str) -> BigUint {
     next_prime(&base, None).unwrap()
 }
 
+pub fn get_m_encode(order_no: String, phrase: String) -> String {
+    bn_encode(&get_m(&(order_no + &phrase)))
+}
+
 pub fn get_blind_token(order_no: String, phrase: String, n: String, e: String) -> String {
     let password = order_no + &phrase;
     let n = bn_decode(&n);
@@ -78,39 +82,32 @@ pub fn get_blind_token(order_no: String, phrase: String, n: String, e: String) -
     return bn_encode(&blind_m);
 }
 
-pub fn check_sign_blind_token(
-    sign_blind_token: String,
+pub fn deblind_sign_token(
+    sign_blind_token_encode: String,
     order_no: String,
     phrase: String,
     goods_id: u64,
     n: String,
     e: String,
 ) -> String {
-    let maybe_error = format!(
-        "ERROR: input sign_blind_token={}, order_no={}, phrase={}, goods_id={}, n={}, e={}",
-        sign_blind_token, order_no, phrase, goods_id, n, e,
-    );
-
     let password = order_no + &phrase;
     let n = bn_decode(&n);
     let e = bn_decode(&e);
     let m = get_m(&password);
     let r = get_r(&password);
-    let sign_blind_token = bn_decode(&sign_blind_token);
+    let sign_blind_token = bn_decode(&sign_blind_token_encode);
     let goods_id = BigUint::from_bytes_be(&sha256(goods_id.to_string().as_bytes()));
     let r_inv = r.clone().invm(&n).unwrap();
     let sign_token = sign_blind_token.mulm(r_inv, &n);
     let design_token = sign_token.powm(e.clone(), &n);
 
-    log(&format!(
-        "wasm check_sign_blind_token: design_token={}",
-        design_token
-    ));
-
     if design_token == m.mulm(goods_id, &n) {
-        "OK".to_string()
+        bn_encode(&design_token)
     } else {
-        maybe_error
+        format!(
+            "ERROR: sign_blind_token bad format, sign_blind_token={}",
+            sign_blind_token_encode
+        )
     }
 }
 
