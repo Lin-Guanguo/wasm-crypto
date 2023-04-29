@@ -24,7 +24,7 @@ pub fn greet() {
 
 #[wasm_bindgen]
 #[allow(non_snake_case)]
-pub fn blindToken(orderNo: String, phrase: String, n: String, e: String) -> String {
+pub fn getBlindToken(orderNo: String, phrase: String, n: String, e: String) -> String {
     utils::set_panic_hook();
-    blind::blind_token(orderNo, phrase, n, e)
+    blind::get_blind_token(orderNo, phrase, n, e)
 }

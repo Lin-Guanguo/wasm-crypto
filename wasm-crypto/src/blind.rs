@@ -1,7 +1,10 @@
+use std::cell::Cell;
+
 use crate::utils::log;
 use base64::engine::general_purpose::URL_SAFE_NO_PAD as Base64;
 use base64::prelude::*;
 use num_bigint::BigUint;
+use num_modular::*;
 use num_prime::nt_funcs::next_prime;
 
 const KEY_BYTES: usize = 256;
@@ -34,6 +37,14 @@ fn kdf<const N: usize>(password: &str) -> [u8; N] {
     base
 }
 
+fn bn_decode(s: &str) -> BigUint {
+    BigUint::from_bytes_be(&Base64.decode(s).unwrap())
+}
+
+fn bn_encode(n: &BigUint) -> String {
+    Base64.encode(n.to_bytes_be())
+}
+
 fn get_m(password: &str) -> BigUint {
     BigUint::from_bytes_be(&hash(password.as_bytes()))
 }
@@ -45,12 +56,16 @@ fn get_r(password: &str) -> BigUint {
     next_prime(&base, None).unwrap()
 }
 
-pub fn blind_token(order_no: String, phrase: String, n: String, e: String) -> String {
+pub fn get_blind_token(order_no: String, phrase: String, n: String, e: String) -> String {
     let password = order_no + &phrase;
+    let n = bn_decode(&n);
+    let e = bn_decode(&e);
     let m = get_m(&password);
     let r = get_r(&password);
-    log(&format!("wasm: m={}, r={}", m, r));
-    return "".to_string();
+    log(&format!("wasm get_blind_token: m={}, r={}", m, r));
+    let blind_m = m.mulm(r.powm(e, &n), &n);
+    log(&format!("wasm get_blind_token: blind_m={}", blind_m));
+    return bn_encode(&blind_m);
 }
 
 #[cfg(test)]
