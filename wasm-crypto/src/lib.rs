@@ -1,3 +1,4 @@
+mod blind;
 mod utils;
 
 use wasm_bindgen::prelude::*;
@@ -11,20 +12,19 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 #[wasm_bindgen]
 extern "C" {
     fn alert(s: &str);
-}
 
-use num_bigint::BigUint;
-use num_modular::ModularUnaryOps;
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
+}
 
 #[wasm_bindgen]
 pub fn greet() {
-    let a = BigUint::from(11u32);
-    let m = BigUint::from(17u32);
-    let inv = a.invm(&m);
-    alert(&format!("Hello, wasm-crypto! {:?}", inv));
+    alert("Hello, wasm-crypto!");
 }
 
 #[wasm_bindgen]
-pub fn greet2() {
-    alert("Hello2, wasm-crypto! version4");
+#[allow(non_snake_case)]
+pub fn blindToken(orderNo: String, phrase: String, n: String, e: String) -> String {
+    utils::set_panic_hook();
+    blind::blind_token(orderNo, phrase, n, e)
 }
