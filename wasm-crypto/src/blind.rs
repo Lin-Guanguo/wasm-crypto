@@ -1,6 +1,6 @@
 use std::convert::TryInto;
 
-use crate::utils::log;
+use crate::utils::console_log;
 use base64::engine::general_purpose::URL_SAFE_NO_PAD as Base64;
 use base64::prelude::*;
 use num_bigint::BigUint;
@@ -59,9 +59,9 @@ pub fn get_blind_token(order_no: String, phrase: String, n: String, e: String) -
     let e = bn_decode(&e);
     let m = get_m(&phrase, &order_no);
     let r = get_r(&phrase, &order_no);
-    log(&format!("wasm get_blind_token: m={}, r={}", m, r));
+    console_log(&format!("wasm get_blind_token: m={}, r={}", m, r));
     let blind_m = m.mulm(r.powm(e, &n), &n);
-    log(&format!("wasm get_blind_token: blind_m={}", blind_m));
+    console_log(&format!("wasm get_blind_token: blind_m={}", blind_m));
     return bn_encode(&blind_m);
 }
 
