@@ -35,9 +35,6 @@ pub fn getBlindToken(
     blind::get_blind_token(orderNo, phrase, n, e)
 }
 
-/**
- * if signBlindToken is right, return deblind sign token, else "ERROR: xxx"
- */
 #[wasm_bindgen]
 #[allow(non_snake_case)]
 pub fn deblindSignToken(
@@ -54,7 +51,7 @@ pub fn deblindSignToken(
 
 #[wasm_bindgen]
 #[allow(non_snake_case)]
-pub fn getM(orderNo: String, phrase: String) -> CryptoResult<String> {
+pub fn getToken(orderNo: String, phrase: String) -> CryptoResult<String> {
     utils::set_panic_hook();
     blind::get_m_encode(orderNo, phrase)
 }
