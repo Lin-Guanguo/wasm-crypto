@@ -1,6 +1,7 @@
 mod blind;
 mod utils;
 
+use crate::utils::CryptoResult;
 use wasm_bindgen::prelude::*;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -24,7 +25,12 @@ pub fn greet() {
 
 #[wasm_bindgen]
 #[allow(non_snake_case)]
-pub fn getBlindToken(orderNo: String, phrase: String, n: String, e: String) -> String {
+pub fn getBlindToken(
+    orderNo: String,
+    phrase: String,
+    n: String,
+    e: String,
+) -> CryptoResult<String> {
     utils::set_panic_hook();
     blind::get_blind_token(orderNo, phrase, n, e)
 }
@@ -41,14 +47,14 @@ pub fn deblindSignToken(
     goodsId: u64,
     n: String,
     e: String,
-) -> String {
+) -> CryptoResult<String> {
     utils::set_panic_hook();
     blind::deblind_sign_token(signBlindToken, orderNo, phrase, goodsId, n, e)
 }
 
 #[wasm_bindgen]
 #[allow(non_snake_case)]
-pub fn getM(orderNo: String, phrase: String) -> String {
+pub fn getM(orderNo: String, phrase: String) -> CryptoResult<String> {
     utils::set_panic_hook();
     blind::get_m_encode(orderNo, phrase)
 }

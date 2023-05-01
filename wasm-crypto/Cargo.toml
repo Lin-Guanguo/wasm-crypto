@@ -32,6 +32,7 @@ sha2 = "0.10.6"
 
 # indirect dependencies
 getrandom = { version="0.2.9", features = ["js"] }
+thiserror = "1.0.40"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"
